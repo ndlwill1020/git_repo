@@ -1,112 +1,127 @@
-创建分支
-git branch dev
-上面操作会在当前的commit对象上新建一个名为dev的分支指针，但是仅仅是创建了该分支，并没有切换到dev分支，此时你还在master分支。
+Git是一个开源的分布式版本控制系统，用以有效、高速的处理从很小到非常大的项目版本管理。在Git中，每个版本库都叫做一个仓库(repository)，每个仓库可以简单理解成一个目录，这个目录里面的所有文件都通过Git来实现版本管理，Git都能跟踪并记录在该目录中发生的所有更新。
 
-切换分支
-git checkout dev
-此时切换到了新建的dev分支，即HEAD指向了dev分支。
-ps:可以加上-b参数
+你的文件可能处于其中之一：已提交(committed)、已修改(modified)和已暂存(staged or index)
+已提交表示数据已经安全的保存在本地数据库中。
+已修改表示修改了文件，但还没保存到数据库中。
+已暂存表示对一个已修改文件的当前版本做了标记，使之包含在下次提交的快照中
 
-git checkout -b dev
-相当于执行
-git branch dev
-git checkout dev
+基本步骤如下：
+1、在工作目录中修改文件。
+2、暂存文件，将文件的快照放入暂存区域。
+3、提交更新，找到暂存区域的文件，将快照永久性存储到 Git 仓库目录。
 
-vim test.py
-git add test.py
-git commit -m "add test.py"
-我们在当前目录下新建了test.py文件，并添加到本地仓库，注意：现在dev分支移动了一格，而master分支还指向原来的commit对象，test.py文件只属于dev分支，master分支并没有该文件。
+初次运行Git的命令
+设置你的用户名称与邮件地址
+$ git config --global user.name "XXX"
+$ git config --global user.email XXX@example.com
+查看配置信息
+$ git config list
+可以使用以下命令查看各种操作的帮助文档
+$ git help
+给操作命令配置别名
+$ git config --global alias.co checkout
+这样下次，可以使用co代替checkout
 
+Git常用基础命令
+1、对现有的某个项目开始用git管理，在该项目所在目录下执行：
+$ git init
+2、克隆远程仓库的命令：
+$ git clone git://github.com/xxxx/xxxx.git
+3、如果需要自定义项目名称，可以在后面加上项目名：
+$ git clone git://github.com/xxxx/xxxx.git myproj
+4、检查当前文件状态
+$ git status
+5、添加文件到暂存区：
+$ git add "filename"
+6、列出忽略的文件：
+$ cat .gitignore
+7、查看已暂存和未暂存的更新：
+比较工作区和暂存区的差异：
+$ git diff
+比较已暂存的文件和上次提交时的差异：
+$ git diff --cached or $ git diff --staged
+8、提交更新到本地仓库：
+加注释说明的提交：
+$ git commit -m "xxxxxxxxxx"
+跳过暂存区(即跳过git add)来提交：
+$ git commit -a -m "xxxxxx"
+9、移除文件：
+$ git rm "file"
+如果想把文件从git仓库删除，但仍希望保留工作区的文件：
+$ git rm --cached xxx.file
+移动文件(可用于改名)：
+$ git mv file_from file_to
+10、查看历史提交：
+查看提交历史：
+$ git log
+11、撤销操作
+     取消已经暂存的文件
+     $ git reset HEAD "filename"
+     取消工作区的修改
+     $ git checkout -- "filename"
+     修正最后一个commit消息
+     $ git commit --amend
+     这个新的commit会把任何修改的内容和上一次commit的内容结合起来。
+     撤销已经commit的提交
+     $ git reset --hard HEAD^
+12、远程仓库的使用
+     查看当前的远程库
+     $ git remote
+     加上-v显示对应的克隆地址
+     添加远程仓库，可以指定一个简单的名字
+     $ git remote add [name] [url]
+     从远程仓库抓取数据到本地，但并不会自动合并到当前分支
+     $ git fetch [remote-name]
+     从远程仓库抓取数据并合并到当前分支
+     $ git pull
+     推送数据到远程仓库
+     $ git push
+     查看远程仓库信息
+     $ git remote show [remote-name]
+     移除远程仓库
+     $ git remote rm [remotename]
+13、打标签
+     列出已有的标签
+     $ git tag
+     新建含附注的标签
+     $ git tag -a v1.4 -m 'my version 1.4'
+     是存储在仓库中的一个独立对象，拥有自身的校验和信息。
+     查看相应标签的信息
+     $ git show v1.4
+     新建轻量级标签
+     $ git tag v1.4
+     就是一个保存着对应提交对象的校验和信息的文件。
+     推送标签到远程仓库
+     $ git push origin v1.5
+     加上–tags一次推送所有标签。
 
-现在切换到master分支
-git checkout master
-可以看到当前目录下是没有test.py文件的。因为Git 会把工作目录的内容恢复为检出某分支时它所指向的那个提交对象的快照，它会自动添加、删除和修改文件以确保目录的内容和你当时提交时完全一样。
-
-
-合并分支
-使用dev分支完成一些需求后，需要回到开发主线把它合并到master分支。
-git merge dev
-ps:需切换到master分支
-合并时出现了“Fast-forward”的提示，因为当前master分支所在的提交对象是要并入的分支dev的直接上游，换句话说，如果顺着一个分支直走下去可以到达另一分支的话，合并两者时不存在任何需要解决的分歧，只需简单的移动指针，这种合并过程称为“Fast-forward”。如果当前master分支所指向的提交对象不是dev分支的直接祖先，Git需要做一些额外处理，Git会用两个分支的末端和它们的共同祖先进行一次简单的三方合并，并做一个新的快照，自动创建一个指向它的提交对象。这个对象有两个祖先，即之前两个分支的末端。合并之后，dev分支和master分支指向同一位置，master分支指向的提交对象就是最新的修改了。
-
-如果不同分支修改了同一文件，合并时可能会遇到冲突，此时Git做了合并，但是并没有提交。使用git status查看哪些文件发生了冲突。解决了所有的冲突后，执行git add将它们添加到暂存区域，因为一旦暂存就表示冲突已解决，然后使用git commit完成这次合并的提交。
-
-
-删除分支
-git branch -d dev
-分支管理
-列出当前所有分支的清单
-git branch
- 
-dev
-* master
-master分支前的*字符：表示当前所在的分支。
-
-
-
-查看各个分支最后一个提交对象的信息
-git branch -v
- 
-dev [7e90b1 add helloworld.java
-* master c7e90b1 [ahead 1] add helloworld.java
-
-
-查看已经与当前分支合并的分支
-git branch --merged
- 
-dev
-* master
-
-
-查看已经与当前分支未合并的分支
-git branch --no-merged
-
-
-查看远程分支
-git branch -r
- 
-origin/HEAD -> origin/master
-origin/master
-
-
-创建远程分支
-即把本地分支推送到远程
-
-git push origin dev
-git branch -r
- 
-origin/HEAD -> origin/master
-origin/dev
-origin/master
-看到已把dev分支成功push到服务器上
-
-同步远程服务器上的数据到本地
-git fetch origin
-
-
-跟踪远程分支
-从远程拉取dev分支到本地，并切换到dev分支,ps:需要git1.6.2以上版本
-
-git checkout --track origin/dev
-从远程拉取dev分支到本地,命名为develop，并切换到develop分支
-git checkout -b develop origin/dev
-
-提交本地分支数据到远程服务器
-git push origin local:remote
-
-git push origin dev:dev
-如果当前是在dev分支下工作，可直接git push
-
-
-删除远程分支
-git push origin :dev
-
-
-分支的衍合
-把一个分支整合到另一个分支有两种方法：merge和rebase（衍合）
-前面已经介绍过，merge是把两个分支最新的快照和二者最新的共同祖先进行三方合并，产生一个新的提交对象。rebase是回到两个分支的共同祖先，根据要进行衍合的分支dev的历次提交对象，生成一系列文件补丁，然后以主干分支master的最后一个提交对象为新的出发点，逐个应用dev分支准备好的补丁文件，生成一个新的提交对象，改写dev的提交历史，使dev成为master的直接下游。然后回到master分支，进行一次快进合并。这样能够保持更加清晰的提交记录，就像没有使用过分支一样。
-
-
-git checkout dev
-git rebase master
-ps:可以把衍合当作一种在推送之前清理提交历史的手段，如果分支中的提交对象已经发布到服务端，就千万不要对该分支进行衍合。
+Git分支
+1、创建分支
+$ git branch [name]
+2、切换到其他分支
+$ git checkout [name]
+3、新建分支并切换到该分支
+$ git checkout -b [name]
+4、合并分支
+$ git merge [branch-name]
+5、删除分支
+$ git branch -d [branch-name]
+删除未合并的分支会失败，换成-D就会强制删除。
+6、合并冲突
+解决冲突后，运行git add把他们标记为已解决。再运行git commit提交。
+7、列出当前所有分支，有*符号的代表是当前分支
+$ git branch
+加上-v参数，将显示各个分支最后一次commit信息。
+加上–merge或者–no-merged选项，查看哪些分支已被合并或未合并到当前分支。
+8、删除远程分支
+$ git push origin :branch-name
+9、变基
+合并分支有两种，一种是merge，一种是rebase。
+$ git checkout branch-dev 
+$ git rebase master
+or
+$ git rebase master branch-dev
+       它的原理是回到两个分支（你所在的分支和你想要衍合进去的分支）的共同祖先，提取你所在分支每次提交时产生的差异（diff），把这些差异分别保存到临时文件里，然后从当前分支转换到你需要衍合入的分支，依序施用每一个差异补丁文件。使提交历史更简洁。
+我们在更新远程仓库时可以使用如下命令：
+$ git pull --rebase
+变基注意事项：不要对在你的仓库外有副本的分支执行变基。
