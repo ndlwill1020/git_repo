@@ -4,8 +4,3 @@ test11
 
 master
 
-Add new
-
-Add test
-
-2018
