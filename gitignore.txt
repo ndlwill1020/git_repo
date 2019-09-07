@@ -1,7 +1,3 @@
-win10用户上传时的名字：
-win10_ndl
-win10_ndl@126.com
-
 
 
 .gitignore 配置文件用于配置不需要加入版本管理的文件
